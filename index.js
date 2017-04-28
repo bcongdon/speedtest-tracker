@@ -3,6 +3,8 @@
 var speedtest = require('speedtest-net');
 var sqlite3 = require('sqlite3');
 var program = require('commander');
+var fs = require('fs');
+
 var db = new sqlite3.Database(__dirname + '/data.db');
 
 var create_table = 'CREATE TABLE IF NOT EXISTS speedtest ( ' +
@@ -11,6 +13,7 @@ var insert = 'INSERT INTO speedtest(time, upload, download, ping) VALUES (?, ?, 
 var clear_table = 'DELETE FROM speedtest';
 var stats_sql = 'SELECT AVG(upload), MAX(upload), ' + 
   'AVG(download), MAX(download), AVG(ping), MAX(ping) FROM speedtest;'
+var all_data = 'SELECT * from speedtest';
 
 function doSpeedTest(cb) {
   speedtest().on('data', data => {
@@ -62,7 +65,24 @@ program
   .description('Displays speedtest stats')
   .action(() => {
     db.get(stats_sql, (err, data) => {
+      if(err) throw err;
       console.log(data);
+    });
+  });
+
+program
+  .command('dump <file>')
+  .description('Dump measurements to a file in CSV format')
+  .action((file) => {
+    db.all(all_data, (err, data) => {
+      if(err) throw err;
+      var csv_str = 'time,ping,download,upload\n';
+      data.forEach((m) => {
+        csv_str += `${m['time']},${m.ping},${m.download},${m.upload}\n`;
+      });
+      fs.writeFile(file, csv_str, (err) => {
+        if(err) throw err;
+      });
     });
   });
 
