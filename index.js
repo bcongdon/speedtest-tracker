@@ -99,7 +99,7 @@ program
         title: 'Ping',
         x: data.map((d) => {return d.time;}),
         y: data.map((d) => {return d.ping;})
-      }
+      };
       ping_line.setData([ping_series]);
 
       // Setup upload/download chart
@@ -120,7 +120,7 @@ program
         style: {
           line: 'blue'
         }
-      }
+      };
       var down_series = {
         title: 'Download',
         x: data.map((d) => {return d.time;}),
@@ -128,7 +128,7 @@ program
         style: {
           line: 'green'
         }
-      }
+      };
       updown_line.setData([up_series, down_series]);
 
       screen.key(['escape', 'q', 'C-c'], () => {
